@@ -29,3 +29,9 @@ down: stop
 status:
 	@echo "-> Estado del contenedor '$(CONTAINER_NAME)':"
 	docker ps -a --filter name=$(CONTAINER_NAME)
+
+shell:
+	docker exec -it $(CONTAINER_NAME) /bin/bash
+
+mysql-cli:
+	docker exec -it $(CONTAINER_NAME) mysql -u root -p$(DB_ROOT_PASSWORD) $(DB_NAME)
