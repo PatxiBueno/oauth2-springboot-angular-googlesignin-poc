@@ -1,0 +1,15 @@
+# Secretos y Entorno
+.env
+*.key
+*.p12
+*.jks
+application-secret.properties
+jwt_secrets.txt
+
+# Directorios de compilación (Binarios)
+target/
+dist/
+node_modules/
+
+# Archivos de sonnarScanner
+.scannerwork/
