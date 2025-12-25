@@ -1,0 +1,72 @@
+name: CI/CD Pipeline Global
+
+# Ramas a las que afecta, en el caso de este proyecto la rama principal se llama develop pero pongo el resto por si acaso
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+
+jobs:
+  # --- TRABAJO 1: Compilar el backend JAVA ---
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v3
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compilar Authorization Server
+        run: |
+          cd authorization-server
+          mvn clean package -DskipTests
+
+      - name: Compilar Resource Server
+        run: |
+          cd resource-server
+          mvn clean package -DskipTests
+
+  # --- TRABAJO 2: Compilar el frontend Angular ---
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: ag-prueba-front/package-lock.json
+
+      - name: Instalar dependencias
+        run: |
+          cd ag-prueba-front
+          npm install
+
+      - name: Compilar Angular (Build)
+        run: |
+          cd ag-prueba-front
+          npm run build -- --configuration production
+
+  # --- TRABAJO 3: SIMULACIÓN DE DESPLIEGUE (CD) ---
+  # --- Como no estamos desplegando a producción realmente simplemente voy a configurar 
+  # --- las dependencias de esta fase respecto a la compilación del backend
+  deploy-simulation:
+    needs: [build-backend, build-frontend] # Espera a que los anteriores terminen bien
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simular Despliegue
+        run: |
+          echo "Compilación de Backend y Frontend correcta."
+          echo "Iniciando despliegue en entorno de Producción..."
+          echo "Copiando binarios al servidor..."
+          sleep 5 # Pausa dramática para simular carga
+          echo "¡Despliegue completado con éxito!"
